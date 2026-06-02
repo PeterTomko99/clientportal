@@ -42,5 +42,5 @@ jobs:
           DB_NAME: clientportal_test
           DB_USER: postgres
           DB_PASSWORD: postgres
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-not-used-in-production-32x' }}
         run: mvn -B verify
