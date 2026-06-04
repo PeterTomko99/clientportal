@@ -3,15 +3,13 @@ package com.PeterTomko.clientportal.service;
 import com.PeterTomko.clientportal.entity.User;
 import com.PeterTomko.clientportal.exception.ResourceNotFoundException;
 import com.PeterTomko.clientportal.repository.UserRepository;
+import com.PeterTomko.clientportal.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,11 +23,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
-                .build();
+        return new UserPrincipal(user);
     }
 
     @Transactional(readOnly = true)
