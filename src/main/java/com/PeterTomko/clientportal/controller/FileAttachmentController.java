@@ -6,6 +6,7 @@ import com.PeterTomko.clientportal.entity.Project;
 import com.PeterTomko.clientportal.security.UserPrincipal;
 import com.PeterTomko.clientportal.service.FileAttachmentService;
 import com.PeterTomko.clientportal.service.ProjectService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Tag(name = "Files", description = "Upload and manage files for a project")
 @RestController
 @RequestMapping("/api/projects/{projectId}/files")
 @RequiredArgsConstructor

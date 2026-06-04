@@ -7,6 +7,7 @@ import com.PeterTomko.clientportal.entity.Project;
 import com.PeterTomko.clientportal.security.UserPrincipal;
 import com.PeterTomko.clientportal.service.InvoiceService;
 import com.PeterTomko.clientportal.service.ProjectService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Invoices", description = "Manage invoices for a project")
 @RestController
 @RequestMapping("/api/projects/{projectId}/invoices")
 @RequiredArgsConstructor

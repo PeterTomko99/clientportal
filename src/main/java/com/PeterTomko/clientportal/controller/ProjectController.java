@@ -6,6 +6,7 @@ import com.PeterTomko.clientportal.entity.Project;
 import com.PeterTomko.clientportal.security.UserPrincipal;
 import com.PeterTomko.clientportal.service.ProjectService;
 import com.PeterTomko.clientportal.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Projects", description = "Manage your projects")
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
