@@ -53,13 +53,19 @@ docker compose up --build
 The API is available at `http://localhost:8080`.  
 Swagger UI: `http://localhost:8080/swagger-ui.html`
 
-### Running without Docker
+### Running without Docker (development)
 
-Requires Java 21 and a running PostgreSQL instance.
+Requires Java 21 and a running PostgreSQL instance. Run backend and frontend separately:
 
 ```bash
+# Terminal 1 — backend
 cp .env.example .env   # fill in values
 ./mvnw spring-boot:run
+
+# Terminal 2 — frontend (proxies /api to localhost:8080)
+cd frontend
+npm install
+npm run dev
 ```
 
 ## API Overview
