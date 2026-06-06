@@ -1,6 +1,7 @@
 package com.PeterTomko.clientportal.controller;
 
 import com.PeterTomko.clientportal.config.ApplicationConfig;
+import com.PeterTomko.clientportal.config.CorsConfig;
 import com.PeterTomko.clientportal.config.SecurityConfig;
 import com.PeterTomko.clientportal.entity.Invoice;
 import com.PeterTomko.clientportal.entity.Project;
@@ -37,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         controllers = AdminController.class,
         excludeAutoConfiguration = UserDetailsServiceAutoConfiguration.class
 )
-@Import({SecurityConfig.class, ApplicationConfig.class, JwtUtil.class, JwtAuthenticationFilter.class})
+@Import({SecurityConfig.class, CorsConfig.class, ApplicationConfig.class, JwtUtil.class, JwtAuthenticationFilter.class})
 class AdminControllerTest {
 
     @Autowired
