@@ -8,6 +8,7 @@ import com.PeterTomko.clientportal.exception.ResourceNotFoundException;
 import com.PeterTomko.clientportal.security.JwtAuthenticationFilter;
 import com.PeterTomko.clientportal.security.JwtUtil;
 import com.PeterTomko.clientportal.security.UserPrincipal;
+import com.PeterTomko.clientportal.service.EmailService;
 import com.PeterTomko.clientportal.service.ProjectService;
 import com.PeterTomko.clientportal.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,9 @@ class ProjectControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private EmailService emailService;
 
     private String token;
     private User testUser;

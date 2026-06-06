@@ -8,9 +8,18 @@ spring:
     hibernate:
       ddl-auto: none
 
+spring:
+  mail:
+    host: localhost
+    port: 3025
+    username: test
+    password: test
+
 app:
   jwt:
     secret: dZv1vY/AJ4Arp4nNrJZVTZ3+pBHamSlyw6ir51oku7c=
     expiration-ms: 86400000
   upload:
     dir: uploads
+  mail:
+    from: noreply@clientportal.com

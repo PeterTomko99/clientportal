@@ -4,6 +4,7 @@ import com.PeterTomko.clientportal.dto.project.ProjectRequest;
 import com.PeterTomko.clientportal.dto.project.ProjectResponse;
 import com.PeterTomko.clientportal.entity.Project;
 import com.PeterTomko.clientportal.security.UserPrincipal;
+import com.PeterTomko.clientportal.service.EmailService;
 import com.PeterTomko.clientportal.service.ProjectService;
 import com.PeterTomko.clientportal.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +25,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final UserService userService;
+    private final EmailService emailService;
 
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> list(@AuthenticationPrincipal UserPrincipal principal) {
@@ -56,11 +58,15 @@ public class ProjectController {
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> update(@PathVariable Long id, @Valid @RequestBody ProjectRequest request, @AuthenticationPrincipal UserPrincipal principal) {
         Project project = projectService.getProjectByIdAndUser(id, principal.getId());
+        Project.Status oldStatus = project.getStatus();
         project.setName(request.getName());
         project.setDescription(request.getDescription());
         project.setStatus(request.getStatus());
         project.setDeadline(request.getDeadline());
         Project saved = projectService.save(project);
+        if (oldStatus != saved.getStatus()) {
+            emailService.sendProjectStatusChanged(principal.getUsername(), principal.getName(), saved.getName(), oldStatus, saved.getStatus());
+        }
         return ResponseEntity.ok(ProjectResponse.from(saved));
     }
 

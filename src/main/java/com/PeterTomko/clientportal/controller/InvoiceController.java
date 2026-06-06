@@ -5,6 +5,7 @@ import com.PeterTomko.clientportal.dto.invoice.InvoiceResponse;
 import com.PeterTomko.clientportal.entity.Invoice;
 import com.PeterTomko.clientportal.entity.Project;
 import com.PeterTomko.clientportal.security.UserPrincipal;
+import com.PeterTomko.clientportal.service.EmailService;
 import com.PeterTomko.clientportal.service.InvoiceService;
 import com.PeterTomko.clientportal.service.ProjectService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +26,7 @@ public class InvoiceController {
 
     private final InvoiceService invoiceService;
     private final ProjectService projectService;
+    private final EmailService emailService;
 
     @GetMapping
     public ResponseEntity<List<InvoiceResponse>> list(@PathVariable Long projectId, @AuthenticationPrincipal UserPrincipal principal) {
@@ -52,6 +54,7 @@ public class InvoiceController {
                 .status(request.getStatus())
                 .build();
         Invoice saved = invoiceService.save(invoice);
+        emailService.sendInvoiceCreated(principal.getUsername(), principal.getName(), project.getName(), saved.getAmount(), saved.getDueDate());
         return ResponseEntity.status(HttpStatus.CREATED).body(InvoiceResponse.from(saved));
     }
 
