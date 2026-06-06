@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import api from '../api';
 
@@ -22,14 +23,12 @@ export default function ProjectDetail() {
   const [invoiceModal, setInvoiceModal] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState(emptyInvoice);
   const [savingInvoice, setSavingInvoice] = useState(false);
-  const [invoiceError, setInvoiceError] = useState('');
 
   const [editModal, setEditModal] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [savingEdit, setSavingEdit] = useState(false);
 
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
 
   useEffect(() => { loadAll(); }, [id]);
 
@@ -44,6 +43,8 @@ export default function ProjectDetail() {
       setProject(pRes.data);
       setInvoices(iRes.data.content || []);
       setFiles(fRes.data);
+    } catch {
+      toast.error('Failed to load project.');
     } finally {
       setLoading(false);
     }
@@ -54,16 +55,16 @@ export default function ProjectDetail() {
 
   async function saveInvoice(e) {
     e.preventDefault();
-    setInvoiceError('');
     setSavingInvoice(true);
     try {
       await api.post(`/api/projects/${id}/invoices`, invoiceForm);
+      toast.success('Invoice created.');
       setInvoiceModal(false);
       setInvoiceForm(emptyInvoice);
       const { data } = await api.get(`/api/projects/${id}/invoices?size=50`);
       setInvoices(data.content || []);
-    } catch (err) {
-      setInvoiceError(err.response?.data?.message || 'Failed to create invoice.');
+    } catch {
+      toast.error('Failed to create invoice.');
     } finally {
       setSavingInvoice(false);
     }
@@ -71,25 +72,31 @@ export default function ProjectDetail() {
 
   async function deleteInvoice(invoiceId) {
     if (!confirm('Delete this invoice?')) return;
-    await api.delete(`/api/projects/${id}/invoices/${invoiceId}`);
-    setInvoices(invoices.filter(i => i.id !== invoiceId));
+    try {
+      await api.delete(`/api/projects/${id}/invoices/${invoiceId}`);
+      setInvoices(invoices.filter(i => i.id !== invoiceId));
+      toast.success('Invoice deleted.');
+    } catch {
+      toast.error('Failed to delete invoice.');
+    }
   }
 
   function downloadPdf(invoiceId) {
     const token = localStorage.getItem('token');
     const url = `${import.meta.env.VITE_API_URL || ''}/api/projects/${id}/invoices/${invoiceId}/pdf`;
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `invoice-${invoiceId}.pdf`;
-    // use fetch to attach auth header
+    const tid = toast.loading('Generating PDF...');
     fetch(url, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.blob())
       .then(blob => {
+        const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
+        a.download = `invoice-${invoiceId}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-      });
+        toast.success('PDF downloaded.', { id: tid });
+      })
+      .catch(() => toast.error('Failed to download PDF.', { id: tid }));
   }
 
   function openEdit() {
@@ -104,6 +111,9 @@ export default function ProjectDetail() {
       const { data } = await api.put(`/api/projects/${id}`, editForm);
       setProject(data);
       setEditModal(false);
+      toast.success('Project updated.');
+    } catch {
+      toast.error('Failed to update project.');
     } finally {
       setSavingEdit(false);
     }
@@ -111,23 +121,30 @@ export default function ProjectDetail() {
 
   async function deleteProject() {
     if (!confirm('Delete this project and all its data?')) return;
-    await api.delete(`/api/projects/${id}`);
-    navigate('/projects');
+    try {
+      await api.delete(`/api/projects/${id}`);
+      toast.success('Project deleted.');
+      navigate('/projects');
+    } catch {
+      toast.error('Failed to delete project.');
+    }
   }
 
   async function uploadFile(e) {
     const file = e.target.files[0];
     if (!file) return;
-    setUploadError('');
     setUploading(true);
     const form = new FormData();
     form.append('file', file);
+    const tid = toast.loading('Uploading...');
     try {
       await api.post(`/api/projects/${id}/files`, form);
       const { data } = await api.get(`/api/projects/${id}/files`);
       setFiles(data);
+      toast.success('File uploaded.', { id: tid });
     } catch (err) {
-      setUploadError(err.response?.data?.message || 'Upload failed.');
+      const msg = err.response?.data?.message || 'Upload failed.';
+      toast.error(msg, { id: tid });
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -136,13 +153,19 @@ export default function ProjectDetail() {
 
   async function deleteFile(fileId) {
     if (!confirm('Delete this file?')) return;
-    await api.delete(`/api/projects/${id}/files/${fileId}`);
-    setFiles(files.filter(f => f.id !== fileId));
+    try {
+      await api.delete(`/api/projects/${id}/files/${fileId}`);
+      setFiles(files.filter(f => f.id !== fileId));
+      toast.success('File deleted.');
+    } catch {
+      toast.error('Failed to delete file.');
+    }
   }
 
   function downloadFile(fileId, fileName) {
     const token = localStorage.getItem('token');
     const url = `${import.meta.env.VITE_API_URL || ''}/api/projects/${id}/files/${fileId}/download`;
+    const tid = toast.loading('Downloading...');
     fetch(url, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.blob())
       .then(blob => {
@@ -152,7 +175,9 @@ export default function ProjectDetail() {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-      });
+        toast.success('File downloaded.', { id: tid });
+      })
+      .catch(() => toast.error('Failed to download file.', { id: tid }));
   }
 
   if (loading) return <><Navbar /><div className="page"><p className="empty">Loading...</p></div></>;
@@ -195,7 +220,7 @@ export default function ProjectDetail() {
           <div className="card">
             <div className="page-header" style={{ marginBottom: 16 }}>
               <h1 style={{ fontSize: 16 }}>Invoices</h1>
-              <button className="btn-sm btn-primary" onClick={() => { setInvoiceModal(true); setInvoiceForm(emptyInvoice); setInvoiceError(''); }}>
+              <button className="btn-sm btn-primary" onClick={() => { setInvoiceModal(true); setInvoiceForm(emptyInvoice); }}>
                 + Add Invoice
               </button>
             </div>
@@ -230,12 +255,11 @@ export default function ProjectDetail() {
           <div className="card">
             <div className="page-header" style={{ marginBottom: 16 }}>
               <h1 style={{ fontSize: 16 }}>Files</h1>
-              <label className="btn-sm btn-primary" style={{ cursor: 'pointer' }}>
+              <label className="btn-sm btn-primary" style={{ cursor: 'pointer', display: 'inline-block' }}>
                 {uploading ? 'Uploading...' : '+ Upload File'}
                 <input type="file" style={{ display: 'none' }} onChange={uploadFile} disabled={uploading} />
               </label>
             </div>
-            {uploadError && <p className="error-msg" style={{ marginBottom: 12 }}>{uploadError}</p>}
             {files.length === 0 ? (
               <p className="empty">No files uploaded yet.</p>
             ) : (
@@ -283,7 +307,6 @@ export default function ProjectDetail() {
                   <option value="PAID">Paid</option>
                 </select>
               </div>
-              {invoiceError && <p className="error-msg">{invoiceError}</p>}
               <div className="modal-actions">
                 <button type="button" onClick={() => setInvoiceModal(false)}>Cancel</button>
                 <button className="btn-primary" type="submit" disabled={savingInvoice}>

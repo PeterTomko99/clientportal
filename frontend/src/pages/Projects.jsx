@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import api from '../api';
 
@@ -16,12 +17,12 @@ export default function Projects() {
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
 
   function load(p = 0) {
     setLoading(true);
     api.get(`/api/projects?page=${p}&size=10&sort=createdAt,desc`)
       .then(({ data: d }) => { setData(d); setPage(p); })
+      .catch(() => toast.error('Failed to load projects.'))
       .finally(() => setLoading(false));
   }
 
@@ -31,15 +32,15 @@ export default function Projects() {
 
   async function save(e) {
     e.preventDefault();
-    setError('');
     setSaving(true);
     try {
       await api.post('/api/projects', form);
+      toast.success('Project created.');
       setModal(false);
       setForm(emptyForm);
       load(0);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create project.');
+    } catch {
+      toast.error('Failed to create project.');
     } finally {
       setSaving(false);
     }
@@ -51,7 +52,7 @@ export default function Projects() {
       <div className="page">
         <div className="page-header">
           <h1>Projects</h1>
-          <button className="btn-primary" onClick={() => { setModal(true); setForm(emptyForm); setError(''); }}>
+          <button className="btn-primary" onClick={() => { setModal(true); setForm(emptyForm); }}>
             + New Project
           </button>
         </div>
@@ -115,7 +116,6 @@ export default function Projects() {
                 <label>Deadline</label>
                 <input name="deadline" type="date" value={form.deadline} onChange={handle} />
               </div>
-              {error && <p className="error-msg">{error}</p>}
               <div className="modal-actions">
                 <button type="button" onClick={() => setModal(false)}>Cancel</button>
                 <button className="btn-primary" type="submit" disabled={saving}>
