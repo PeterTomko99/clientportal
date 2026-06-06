@@ -99,6 +99,23 @@ Full interactive docs at `/swagger-ui.html`.
 | `MAIL_PASSWORD` | — | SMTP password / App Password |
 | `MAIL_FROM` | `noreply@clientportal.com` | From address |
 
+## Deploying to Railway
+
+1. Create a new project at [railway.app](https://railway.app)
+2. Add a **PostgreSQL** plugin — Railway injects `DATABASE_URL` automatically
+3. Connect this GitHub repo and set the following environment variables in Railway:
+
+```
+JWT_SECRET=<256-bit base64 secret>
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=you@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_FROM=noreply@clientportal.com
+```
+
+Railway uses the `Dockerfile` and `railway.json` at the repo root. The app is health-checked at `/actuator/health`.
+
 ## Project Structure
 
 ```
