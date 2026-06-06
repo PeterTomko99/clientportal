@@ -53,3 +53,5 @@ app:
     dir: ${UPLOAD_DIR:uploads}
   mail:
     from: ${MAIL_FROM:noreply@clientportal.com}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
