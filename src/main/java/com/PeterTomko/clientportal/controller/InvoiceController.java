@@ -13,14 +13,16 @@ import com.lowagie.text.DocumentException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Invoices", description = "Manage invoices for a project")
 @RestController
@@ -34,11 +36,12 @@ public class InvoiceController {
     private final PdfService pdfService;
 
     @GetMapping
-    public ResponseEntity<List<InvoiceResponse>> list(@PathVariable Long projectId, @AuthenticationPrincipal UserPrincipal principal) {
-        List<InvoiceResponse> invoices = invoiceService.getInvoicesByProjectAndUser(projectId, principal.getId())
-                .stream()
-                .map(InvoiceResponse::from)
-                .toList();
+    public ResponseEntity<Page<InvoiceResponse>> list(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<InvoiceResponse> invoices = invoiceService.getInvoicesByProjectAndUser(projectId, principal.getId(), pageable)
+                .map(InvoiceResponse::from);
         return ResponseEntity.ok(invoices);
     }
 

@@ -1,6 +1,8 @@
 package com.PeterTomko.clientportal.service;
 
 import com.PeterTomko.clientportal.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import com.PeterTomko.clientportal.exception.ResourceNotFoundException;
 import com.PeterTomko.clientportal.repository.UserRepository;
@@ -47,6 +49,11 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public List<User> findAll() {
         return userRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @Transactional

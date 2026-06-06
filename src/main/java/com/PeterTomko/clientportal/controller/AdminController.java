@@ -8,12 +8,14 @@ import com.PeterTomko.clientportal.service.ProjectService;
 import com.PeterTomko.clientportal.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Tag(name = "Admin", description = "Admin-only endpoints for managing all users, projects, and invoices")
 @RestController
@@ -26,29 +28,23 @@ public class AdminController {
     private final InvoiceService invoiceService;
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserResponse>> listUsers() {
-        List<UserResponse> users = userService.findAll()
-                .stream()
-                .map(UserResponse::from)
-                .toList();
+    public ResponseEntity<Page<UserResponse>> listUsers(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<UserResponse> users = userService.findAll(pageable).map(UserResponse::from);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/projects")
-    public ResponseEntity<List<ProjectResponse>> listProjects() {
-        List<ProjectResponse> projects = projectService.findAll()
-                .stream()
-                .map(ProjectResponse::from)
-                .toList();
+    public ResponseEntity<Page<ProjectResponse>> listProjects(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProjectResponse> projects = projectService.findAll(pageable).map(ProjectResponse::from);
         return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/invoices")
-    public ResponseEntity<List<InvoiceResponse>> listInvoices() {
-        List<InvoiceResponse> invoices = invoiceService.findAll()
-                .stream()
-                .map(InvoiceResponse::from)
-                .toList();
+    public ResponseEntity<Page<InvoiceResponse>> listInvoices(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<InvoiceResponse> invoices = invoiceService.findAll(pageable).map(InvoiceResponse::from);
         return ResponseEntity.ok(invoices);
     }
 }

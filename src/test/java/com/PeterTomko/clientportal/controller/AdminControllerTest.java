@@ -20,6 +20,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,12 +72,12 @@ class AdminControllerTest {
     @Test
     void listUsers_returns200ForAdmin() throws Exception {
         User user = User.builder().id(1L).name("Admin").email("admin@test.com").role(User.Role.ADMIN).createdAt(LocalDateTime.now()).build();
-        when(userService.findAll()).thenReturn(List.of(user));
+        when(userService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(user)));
 
         mockMvc.perform(get("/api/admin/users")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].email").value("admin@test.com"));
+                .andExpect(jsonPath("$.content[0].email").value("admin@test.com"));
     }
 
     @Test
@@ -91,12 +94,12 @@ class AdminControllerTest {
         project.setName("Test Project");
         project.setStatus(Project.Status.PENDING);
         project.setCreatedAt(LocalDateTime.now());
-        when(projectService.findAll()).thenReturn(List.of(project));
+        when(projectService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(project)));
 
         mockMvc.perform(get("/api/admin/projects")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Test Project"));
+                .andExpect(jsonPath("$.content[0].name").value("Test Project"));
     }
 
     @Test
@@ -112,12 +115,12 @@ class AdminControllerTest {
         invoice.setStatus(Invoice.Status.UNPAID);
         invoice.setCreatedAt(LocalDateTime.now());
 
-        when(invoiceService.findAll()).thenReturn(List.of(invoice));
+        when(invoiceService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(invoice)));
 
         mockMvc.perform(get("/api/admin/invoices")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1));
+                .andExpect(jsonPath("$.content[0].id").value(1));
     }
 
     @Test

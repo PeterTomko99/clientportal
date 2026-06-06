@@ -10,12 +10,14 @@ import com.PeterTomko.clientportal.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Projects", description = "Manage your projects")
 @RestController
@@ -28,11 +30,11 @@ public class ProjectController {
     private final EmailService emailService;
 
     @GetMapping
-    public ResponseEntity<List<ProjectResponse>> list(@AuthenticationPrincipal UserPrincipal principal) {
-        List<ProjectResponse> projects = projectService.getProjectsByUser(principal.getId())
-                .stream()
-                .map(ProjectResponse::from)
-                .toList();
+    public ResponseEntity<Page<ProjectResponse>> list(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProjectResponse> projects = projectService.getProjectsByUser(principal.getId(), pageable)
+                .map(ProjectResponse::from);
         return ResponseEntity.ok(projects);
     }
 

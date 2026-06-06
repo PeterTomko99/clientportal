@@ -4,6 +4,8 @@ import com.PeterTomko.clientportal.entity.Invoice;
 import com.PeterTomko.clientportal.exception.ResourceNotFoundException;
 import com.PeterTomko.clientportal.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,11 @@ public class InvoiceService {
     }
 
     @Transactional(readOnly = true)
+    public Page<Invoice> getInvoicesByProjectAndUser(Long projectId, Long userId, Pageable pageable) {
+        return invoiceRepository.findByProjectIdAndProjectUserId(projectId, userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
     public Invoice getInvoiceByIdAndUser(Long id, Long userId) {
         return invoiceRepository.findByIdAndProjectUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
@@ -34,6 +41,11 @@ public class InvoiceService {
     @Transactional(readOnly = true)
     public List<Invoice> findAll() {
         return invoiceRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Invoice> findAll(Pageable pageable) {
+        return invoiceRepository.findAll(pageable);
     }
 
     @Transactional

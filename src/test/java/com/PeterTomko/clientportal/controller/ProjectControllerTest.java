@@ -21,6 +21,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -73,13 +76,14 @@ class ProjectControllerTest {
     @Test
     void list_returns200WithProjects() throws Exception {
         Project project = buildProject(1L, "Website Redesign");
-        when(projectService.getProjectsByUser(1L)).thenReturn(List.of(project));
+        when(projectService.getProjectsByUser(eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(project)));
 
         mockMvc.perform(get("/api/projects")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Website Redesign"));
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Website Redesign"));
     }
 
     @Test
