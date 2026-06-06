@@ -7,8 +7,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-
-spring:
   mail:
     host: localhost
     port: 3025
@@ -23,3 +21,5 @@ app:
     dir: uploads
   mail:
     from: noreply@clientportal.com
+  cors:
+    allowed-origins: http://localhost:5173
