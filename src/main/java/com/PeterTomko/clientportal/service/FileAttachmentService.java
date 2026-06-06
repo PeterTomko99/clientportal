@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,6 +80,15 @@ public class FileAttachmentService {
             return "";
         }
         return filename.substring(dot + 1);
+    }
+
+    public Resource loadResource(FileAttachment attachment) throws IOException {
+        Path path = Paths.get(uploadDir).resolve(attachment.getFilePath()).normalize();
+        Resource resource = new UrlResource(path.toUri());
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new ResourceNotFoundException("File not found on disk");
+        }
+        return resource;
     }
 
     @Transactional

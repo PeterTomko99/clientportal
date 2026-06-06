@@ -8,13 +8,18 @@ import com.PeterTomko.clientportal.service.FileAttachmentService;
 import com.PeterTomko.clientportal.service.ProjectService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Tag(name = "Files", description = "Upload and manage files for a project")
@@ -40,6 +45,20 @@ public class FileAttachmentController {
         Project project = projectService.getProjectByIdAndUser(projectId, principal.getId());
         FileAttachment saved = fileAttachmentService.upload(file, project);
         return ResponseEntity.status(HttpStatus.CREATED).body(FileAttachmentResponse.from(saved));
+    }
+
+    @GetMapping("/{id}/download")
+    public ResponseEntity<Resource> download(@PathVariable Long projectId, @PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) throws IOException {
+        projectService.getProjectByIdAndUser(projectId, principal.getId());
+        FileAttachment file = fileAttachmentService.getFileByIdAndUser(id, principal.getId());
+        Resource resource = fileAttachmentService.loadResource(file);
+        String contentType = Files.probeContentType(Paths.get(file.getFilePath()));
+        MediaType mediaType = contentType != null ? MediaType.parseMediaType(contentType) : MediaType.APPLICATION_OCTET_STREAM;
+        String safeFilename = file.getFileName().replace("\"", "").replace("\n", "").replace("\r", "");
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + safeFilename + "\"")
+                .body(resource);
     }
 
     @DeleteMapping("/{id}")
