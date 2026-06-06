@@ -4,6 +4,7 @@ import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.draw.LineSeparator;
 import com.PeterTomko.clientportal.entity.Invoice;
 import com.PeterTomko.clientportal.entity.Project;
 import org.springframework.stereotype.Service;
