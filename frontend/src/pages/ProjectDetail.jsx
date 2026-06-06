@@ -77,7 +77,7 @@ export default function ProjectDetail() {
 
   function downloadPdf(invoiceId) {
     const token = localStorage.getItem('token');
-    const url = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/projects/${id}/invoices/${invoiceId}/pdf`;
+    const url = `${import.meta.env.VITE_API_URL || ''}/api/projects/${id}/invoices/${invoiceId}/pdf`;
     const a = document.createElement('a');
     a.href = url;
     a.download = `invoice-${invoiceId}.pdf`;
@@ -142,7 +142,7 @@ export default function ProjectDetail() {
 
   function downloadFile(fileId, fileName) {
     const token = localStorage.getItem('token');
-    const url = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/projects/${id}/files/${fileId}/download`;
+    const url = `${import.meta.env.VITE_API_URL || ''}/api/projects/${id}/files/${fileId}/download`;
     fetch(url, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.blob())
       .then(blob => {
