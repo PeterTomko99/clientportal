@@ -7,11 +7,15 @@ import com.PeterTomko.clientportal.entity.Project;
 import com.PeterTomko.clientportal.security.UserPrincipal;
 import com.PeterTomko.clientportal.service.EmailService;
 import com.PeterTomko.clientportal.service.InvoiceService;
+import com.PeterTomko.clientportal.service.PdfService;
 import com.PeterTomko.clientportal.service.ProjectService;
+import com.lowagie.text.DocumentException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +31,7 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
     private final ProjectService projectService;
     private final EmailService emailService;
+    private final PdfService pdfService;
 
     @GetMapping
     public ResponseEntity<List<InvoiceResponse>> list(@PathVariable Long projectId, @AuthenticationPrincipal UserPrincipal principal) {
@@ -67,6 +72,17 @@ public class InvoiceController {
         invoice.setStatus(request.getStatus());
         Invoice saved = invoiceService.save(invoice);
         return ResponseEntity.ok(InvoiceResponse.from(saved));
+    }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> generatePdf(@PathVariable Long projectId, @PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) throws DocumentException {
+        Project project = projectService.getProjectByIdAndUser(projectId, principal.getId());
+        Invoice invoice = invoiceService.getInvoiceByIdAndUser(id, principal.getId());
+        byte[] pdf = pdfService.generateInvoicePdf(invoice, project, principal.getName());
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"invoice-" + invoice.getId() + ".pdf\"")
+                .body(pdf);
     }
 
     @DeleteMapping("/{id}")
