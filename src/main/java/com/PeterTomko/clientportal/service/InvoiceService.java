@@ -31,6 +31,11 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
 
+    @Transactional(readOnly = true)
+    public List<Invoice> findAll() {
+        return invoiceRepository.findAll();
+    }
+
     @Transactional
     public void delete(Long id, Long userId) {
         Invoice invoice = getInvoiceByIdAndUser(id, userId);

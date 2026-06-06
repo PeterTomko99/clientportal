@@ -31,6 +31,11 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
+    @Transactional(readOnly = true)
+    public List<Project> findAll() {
+        return projectRepository.findAll();
+    }
+
     @Transactional
     public void delete(Long id, Long userId) {
         Project project = getProjectByIdAndUser(id, userId);

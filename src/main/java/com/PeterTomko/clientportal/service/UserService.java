@@ -1,6 +1,7 @@
 package com.PeterTomko.clientportal.service;
 
 import com.PeterTomko.clientportal.entity.User;
+import java.util.List;
 import com.PeterTomko.clientportal.exception.ResourceNotFoundException;
 import com.PeterTomko.clientportal.repository.UserRepository;
 import com.PeterTomko.clientportal.security.UserPrincipal;
@@ -41,6 +42,11 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Transactional
