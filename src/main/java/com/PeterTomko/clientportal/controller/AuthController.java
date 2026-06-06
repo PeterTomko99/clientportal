@@ -46,7 +46,7 @@ public class AuthController {
                 .build();
 
         User saved = userService.save(user);
-        String token = jwtUtil.generateToken(saved.getEmail(), saved.getId());
+        String token = jwtUtil.generateToken(saved.getEmail(), saved.getId(), saved.getRole().name());
         return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token));
     }
 
@@ -56,7 +56,7 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
-        String token = jwtUtil.generateToken(principal.getUsername(), principal.getId());
+        String token = jwtUtil.generateToken(principal.getUsername(), principal.getId(), principal.getRole());
         return ResponseEntity.ok(new AuthResponse(token));
     }
 }

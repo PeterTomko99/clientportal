@@ -65,7 +65,7 @@ class ProjectControllerTest {
         testUser = User.builder().id(1L).email("peter@test.com").password("hashed").role(User.Role.CLIENT).build();
         when(userService.loadUserByUsername("peter@test.com")).thenReturn(new UserPrincipal(testUser));
         when(userService.findById(1L)).thenReturn(testUser);
-        token = jwtUtil.generateToken("peter@test.com", 1L);
+        token = jwtUtil.generateToken("peter@test.com", 1L, "CLIENT");
     }
 
     @Test

@@ -67,8 +67,8 @@ class AdminControllerTest {
         when(userService.loadUserByUsername("admin@test.com")).thenReturn(new UserPrincipal(admin));
         when(userService.loadUserByUsername("client@test.com")).thenReturn(new UserPrincipal(client));
 
-        adminToken = jwtUtil.generateToken("admin@test.com", 1L);
-        clientToken = jwtUtil.generateToken("client@test.com", 2L);
+        adminToken = jwtUtil.generateToken("admin@test.com", 1L, "ADMIN");
+        clientToken = jwtUtil.generateToken("client@test.com", 2L, "CLIENT");
     }
 
     @Test
