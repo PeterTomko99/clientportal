@@ -70,15 +70,15 @@ export default function ProjectDetail() {
     }
   }
 
-  async function markPaid(inv) {
+  async function markStatus(inv, status) {
     try {
       const { data } = await api.put(`/api/projects/${id}/invoices/${inv.id}`, {
         amount: inv.amount,
         dueDate: inv.dueDate,
-        status: 'PAID',
+        status,
       });
       setInvoices(invoices.map(i => i.id === inv.id ? data : i));
-      toast.success('Invoice marked as paid.');
+      toast.success(status === 'PAID' ? 'Invoice marked as paid.' : 'Invoice marked as unpaid.');
     } catch {
       toast.error('Failed to update invoice.');
     }
@@ -254,7 +254,10 @@ export default function ProjectDetail() {
                       <td>
                         <div style={{ display: 'flex', gap: 6 }}>
                           {inv.status !== 'PAID' && (
-                            <button className="btn-sm btn-primary" onClick={() => markPaid(inv)}>Mark Paid</button>
+                            <button className="btn-sm btn-primary" onClick={() => markStatus(inv, 'PAID')}>Mark Paid</button>
+                          )}
+                          {inv.status === 'PAID' && (
+                            <button className="btn-sm btn-secondary" onClick={() => markStatus(inv, 'UNPAID')}>Mark Unpaid</button>
                           )}
                           <button className="btn-sm btn-primary" onClick={() => downloadPdf(inv.id)}>PDF</button>
                           <button className="btn-sm btn-danger" onClick={() => deleteInvoice(inv.id)}>Delete</button>
