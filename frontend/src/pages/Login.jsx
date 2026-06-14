@@ -38,12 +38,12 @@ export default function Login() {
         <p>Sign in to your client portal</p>
         <form onSubmit={submit}>
           <div className="form-group">
-            <label>Email</label>
-            <input name="email" type="email" value={form.email} onChange={handle} required autoComplete="email" />
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" value={form.email} onChange={handle} required autoComplete="email" />
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input name="password" type="password" value={form.password} onChange={handle} required autoComplete="current-password" />
+            <label htmlFor="password">Password</label>
+            <input id="password" name="password" type="password" value={form.password} onChange={handle} required autoComplete="current-password" />
           </div>
           <button className="btn-primary" type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}

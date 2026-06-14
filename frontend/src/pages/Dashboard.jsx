@@ -8,18 +8,21 @@ function Badge({ value }) {
 }
 
 export default function Dashboard() {
+  const [stats, setStats] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/api/projects?size=5&sort=createdAt,desc')
-      .then(({ data }) => setProjects(data.content || []))
+    Promise.all([
+      api.get('/api/dashboard/stats'),
+      api.get('/api/projects?size=5&sort=createdAt,desc'),
+    ])
+      .then(([statsRes, projectsRes]) => {
+        setStats(statsRes.data);
+        setProjects(projectsRes.data.content || []);
+      })
       .finally(() => setLoading(false));
   }, []);
-
-  const total = projects.length;
-  const completed = projects.filter(p => p.status === 'COMPLETED').length;
-  const inProgress = projects.filter(p => p.status === 'IN_PROGRESS').length;
 
   return (
     <>
@@ -32,16 +35,24 @@ export default function Dashboard() {
 
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-label">Recent Projects</div>
-            <div className="stat-value">{total}</div>
+            <div className="stat-label">Total Projects</div>
+            <div className="stat-value">{loading ? '—' : stats?.totalProjects ?? 0}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">In Progress</div>
-            <div className="stat-value">{inProgress}</div>
+            <div className="stat-value">{loading ? '—' : stats?.inProgressProjects ?? 0}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Completed</div>
-            <div className="stat-value">{completed}</div>
+            <div className="stat-value">{loading ? '—' : stats?.completedProjects ?? 0}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Unpaid Invoices</div>
+            <div className="stat-value">{loading ? '—' : (stats?.unpaidInvoices ?? 0) + (stats?.overdueInvoices ?? 0)}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Total Revenue</div>
+            <div className="stat-value">${loading ? '—' : Number(stats?.totalRevenue ?? 0).toFixed(2)}</div>
           </div>
         </div>
 

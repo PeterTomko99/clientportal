@@ -152,7 +152,7 @@ export default function Admin() {
                         {invoices.content.map(i => (
                           <tr key={i.id}>
                             <td>#{i.id}</td>
-                            <td>Project #{i.projectId}</td>
+                            <td>{i.projectName || `Project #${i.projectId}`}</td>
                             <td>${Number(i.amount).toFixed(2)}</td>
                             <td>{i.dueDate}</td>
                             <td><Badge value={i.status} /></td>

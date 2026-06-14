@@ -14,6 +14,7 @@ public class InvoiceResponse {
 
     private Long id;
     private Long projectId;
+    private String projectName;
     private BigDecimal amount;
     private LocalDate dueDate;
     private Invoice.Status status;
@@ -23,6 +24,7 @@ public class InvoiceResponse {
         return InvoiceResponse.builder()
                 .id(invoice.getId())
                 .projectId(invoice.getProject().getId())
+                .projectName(invoice.getProject().getName())
                 .amount(invoice.getAmount())
                 .dueDate(invoice.getDueDate())
                 .status(invoice.getStatus())

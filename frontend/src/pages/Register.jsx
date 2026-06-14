@@ -38,16 +38,16 @@ export default function Register() {
         <p>Get started with your client portal</p>
         <form onSubmit={submit}>
           <div className="form-group">
-            <label>Full Name</label>
-            <input name="name" value={form.name} onChange={handle} required autoComplete="name" />
+            <label htmlFor="name">Full Name</label>
+            <input id="name" name="name" value={form.name} onChange={handle} required autoComplete="name" />
           </div>
           <div className="form-group">
-            <label>Email</label>
-            <input name="email" type="email" value={form.email} onChange={handle} required autoComplete="email" />
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" value={form.email} onChange={handle} required autoComplete="email" />
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input name="password" type="password" value={form.password} onChange={handle} required minLength={8} autoComplete="new-password" />
+            <label htmlFor="password">Password</label>
+            <input id="password" name="password" type="password" value={form.password} onChange={handle} required minLength={8} autoComplete="new-password" />
           </div>
           <button className="btn-primary" type="submit" disabled={loading}>
             {loading ? 'Creating...' : 'Create account'}

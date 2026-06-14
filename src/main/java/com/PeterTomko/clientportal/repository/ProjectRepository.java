@@ -15,4 +15,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Page<Project> findByUserId(Long userId, Pageable pageable);
 
     Optional<Project> findByIdAndUserId(Long id, Long userId);
+
+    long countByUserId(Long userId);
+
+    long countByUserIdAndStatus(Long userId, Project.Status status);
 }

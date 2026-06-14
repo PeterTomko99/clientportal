@@ -23,4 +23,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     @Query("SELECT i FROM Invoice i JOIN FETCH i.project p JOIN FETCH p.user WHERE i.status = :status AND i.dueDate < :date")
     List<Invoice> findOverdueWithDetails(@Param("status") Invoice.Status status, @Param("date") LocalDate date);
+
+    long countByProjectUserId(Long userId);
+
+    long countByProjectUserIdAndStatus(Long userId, Invoice.Status status);
+
+    @Query("SELECT COALESCE(SUM(i.amount), 0) FROM Invoice i WHERE i.project.user.id = :userId AND i.status = 'PAID'")
+    java.math.BigDecimal sumPaidAmountByUserId(@Param("userId") Long userId);
 }
