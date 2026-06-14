@@ -6,7 +6,6 @@ import com.PeterTomko.clientportal.dto.auth.LoginRequest;
 import com.PeterTomko.clientportal.dto.auth.RegisterRequest;
 import com.PeterTomko.clientportal.dto.auth.ResetPasswordRequest;
 import com.PeterTomko.clientportal.entity.User;
-import com.PeterTomko.clientportal.repository.UserRepository;
 import com.PeterTomko.clientportal.security.JwtUtil;
 import com.PeterTomko.clientportal.security.UserPrincipal;
 import com.PeterTomko.clientportal.service.EmailService;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
 
 @Tag(name = "Auth", description = "Register and login")
 @RestController
@@ -36,7 +34,6 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final PasswordResetService passwordResetService;
@@ -62,11 +59,11 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        Optional<String> token = passwordResetService.createToken(request.getEmail());
-        token.ifPresent(t -> {
-            userRepository.findByEmail(request.getEmail()).ifPresent(user ->
-                emailService.sendPasswordReset(user.getEmail(), user.getName(), t)
-            );
+        passwordResetService.createToken(request.getEmail()).ifPresent(t -> {
+            try {
+                User user = userService.findByEmail(request.getEmail());
+                emailService.sendPasswordReset(user.getEmail(), user.getName(), t);
+            } catch (Exception ignored) {}
         });
         return ResponseEntity.ok().build();
     }

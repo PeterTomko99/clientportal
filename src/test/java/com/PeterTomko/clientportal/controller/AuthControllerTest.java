@@ -7,6 +7,8 @@ import com.PeterTomko.clientportal.entity.User;
 import com.PeterTomko.clientportal.security.JwtAuthenticationFilter;
 import com.PeterTomko.clientportal.security.JwtUtil;
 import com.PeterTomko.clientportal.security.UserPrincipal;
+import com.PeterTomko.clientportal.service.EmailService;
+import com.PeterTomko.clientportal.service.PasswordResetService;
 import com.PeterTomko.clientportal.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +43,15 @@ class AuthControllerTest {
 
     @MockBean
     private AuthenticationManager authenticationManager;
+
+    @MockBean
+    private PasswordEncoder passwordEncoder;
+
+    @MockBean
+    private PasswordResetService passwordResetService;
+
+    @MockBean
+    private EmailService emailService;
 
     @Test
     void register_returns201AndToken() throws Exception {
