@@ -6,9 +6,6 @@ import Login from '../pages/Login';
 import api from '../api';
 
 vi.mock('../api');
-vi.mock('react-hot-toast', () => ({
-  default: { success: vi.fn(), error: vi.fn() },
-}));
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -47,16 +44,28 @@ describe('Login', () => {
     });
   });
 
-  it('shows invalid credentials error on 401', async () => {
-    const toast = (await import('react-hot-toast')).default;
+  it('shows inline error message on 401', async () => {
     api.post.mockRejectedValue({ response: { status: 401 } });
     setup();
     await fillAndSubmit();
 
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith('Invalid email or password.')
+      expect(screen.getByText('Invalid email or password.')).toBeInTheDocument()
     );
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('clears error when user starts typing again', async () => {
+    api.post.mockRejectedValue({ response: { status: 401 } });
+    setup();
+    await fillAndSubmit();
+
+    await waitFor(() =>
+      expect(screen.getByText('Invalid email or password.')).toBeInTheDocument()
+    );
+
+    await userEvent.type(screen.getByLabelText(/email/i), 'x');
+    expect(screen.queryByText('Invalid email or password.')).not.toBeInTheDocument();
   });
 
   it('does not store token on failed login', async () => {
