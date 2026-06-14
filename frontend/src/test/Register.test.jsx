@@ -6,9 +6,6 @@ import Register from '../pages/Register';
 import api from '../api';
 
 vi.mock('../api');
-vi.mock('react-hot-toast', () => ({
-  default: { success: vi.fn(), error: vi.fn() },
-}));
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -29,6 +26,13 @@ describe('Register', () => {
     );
   }
 
+  async function fillAndSubmit() {
+    await userEvent.type(screen.getByLabelText(/full name/i), 'Jan Novak');
+    await userEvent.type(screen.getByLabelText(/email/i), 'jan@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
+  }
+
   it('renders all fields without a role selector', () => {
     setup();
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
@@ -37,30 +41,38 @@ describe('Register', () => {
     expect(screen.queryByLabelText(/role/i)).not.toBeInTheDocument();
   });
 
-  it('navigates to login on successful registration', async () => {
+  it('navigates to login with success message on successful registration', async () => {
     api.post.mockResolvedValue({});
     setup();
-
-    await userEvent.type(screen.getByLabelText(/full name/i), 'Jan Novak');
-    await userEvent.type(screen.getByLabelText(/email/i), 'jan@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
-    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
-
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/login'));
-  });
-
-  it('shows error toast on 409 conflict', async () => {
-    const toast = (await import('react-hot-toast')).default;
-    api.post.mockRejectedValue({ response: { status: 409 } });
-    setup();
-
-    await userEvent.type(screen.getByLabelText(/full name/i), 'Jan Novak');
-    await userEvent.type(screen.getByLabelText(/email/i), 'jan@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
-    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
+    await fillAndSubmit();
 
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith('An account with that email already exists.')
+      expect(mockNavigate).toHaveBeenCalledWith('/login', {
+        state: { message: 'Account created. Please sign in.' },
+      })
     );
+  });
+
+  it('shows inline error on 409 conflict', async () => {
+    api.post.mockRejectedValue({ response: { status: 409 } });
+    setup();
+    await fillAndSubmit();
+
+    await waitFor(() =>
+      expect(screen.getByText('An account with that email already exists.')).toBeInTheDocument()
+    );
+  });
+
+  it('clears error when user starts typing', async () => {
+    api.post.mockRejectedValue({ response: { status: 409 } });
+    setup();
+    await fillAndSubmit();
+
+    await waitFor(() =>
+      expect(screen.getByText('An account with that email already exists.')).toBeInTheDocument()
+    );
+
+    await userEvent.type(screen.getByLabelText(/email/i), 'x');
+    expect(screen.queryByText('An account with that email already exists.')).not.toBeInTheDocument();
   });
 });
