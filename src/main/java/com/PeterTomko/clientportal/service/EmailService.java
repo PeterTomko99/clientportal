@@ -25,6 +25,9 @@ public class EmailService {
     @Value("${app.mail.from}")
     private String from;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     @Async
     public void sendInvoiceCreated(String toEmail, String userName, String projectName,
                                    BigDecimal amount, LocalDate dueDate) {
@@ -77,6 +80,26 @@ public class EmailService {
                 <p>Please settle this invoice at your earliest convenience.</p>
                 </body></html>
                 """.formatted(userName, projectName, amount, dueDate);
+        send(toEmail, subject, body);
+    }
+
+    @Async
+    public void sendPasswordReset(String toEmail, String userName, String token) {
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
+        String subject = "Reset your password";
+        String body = """
+                <html><body style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #2c3e50;">Password Reset Request</h2>
+                <p>Hi %s,</p>
+                <p>Click the button below to reset your password. This link expires in <strong>1 hour</strong>.</p>
+                <p style="margin: 24px 0;">
+                  <a href="%s" style="background:#2c3e50;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;">
+                    Reset Password
+                  </a>
+                </p>
+                <p style="font-size:12px;color:#888;">If you did not request this, ignore this email.</p>
+                </body></html>
+                """.formatted(userName, resetLink);
         send(toEmail, subject, body);
     }
 

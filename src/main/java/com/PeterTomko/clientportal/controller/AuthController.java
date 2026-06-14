@@ -1,11 +1,16 @@
 package com.PeterTomko.clientportal.controller;
 
 import com.PeterTomko.clientportal.dto.auth.AuthResponse;
+import com.PeterTomko.clientportal.dto.auth.ForgotPasswordRequest;
 import com.PeterTomko.clientportal.dto.auth.LoginRequest;
 import com.PeterTomko.clientportal.dto.auth.RegisterRequest;
+import com.PeterTomko.clientportal.dto.auth.ResetPasswordRequest;
 import com.PeterTomko.clientportal.entity.User;
+import com.PeterTomko.clientportal.repository.UserRepository;
 import com.PeterTomko.clientportal.security.JwtUtil;
 import com.PeterTomko.clientportal.security.UserPrincipal;
+import com.PeterTomko.clientportal.service.EmailService;
+import com.PeterTomko.clientportal.service.PasswordResetService;
 import com.PeterTomko.clientportal.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @Tag(name = "Auth", description = "Register and login")
 @RestController
 @RequestMapping("/api/auth")
@@ -29,8 +36,11 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PasswordResetService passwordResetService;
+    private final EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -48,6 +58,26 @@ public class AuthController {
         User saved = userService.save(user);
         String token = jwtUtil.generateToken(saved.getEmail(), saved.getId(), saved.getRole().name());
         return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        Optional<String> token = passwordResetService.createToken(request.getEmail());
+        token.ifPresent(t -> {
+            userRepository.findByEmail(request.getEmail()).ifPresent(user ->
+                emailService.sendPasswordReset(user.getEmail(), user.getName(), t)
+            );
+        });
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        boolean success = passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
+        if (!success) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")

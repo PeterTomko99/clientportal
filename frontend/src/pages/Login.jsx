@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const successMessage = location.state?.message || '';
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -40,6 +42,7 @@ export default function Login() {
       <div className="auth-card">
         <h1>Welcome back</h1>
         <p>Sign in to your client portal</p>
+        {successMessage && <p style={{ color: '#27ae60', fontSize: 14, marginBottom: 12 }}>{successMessage}</p>}
         <form onSubmit={submit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -54,6 +57,9 @@ export default function Login() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+        <p className="auth-footer">
+          <Link to="/forgot-password">Forgot password?</Link>
+        </p>
         <p className="auth-footer">
           No account? <Link to="/register">Register</Link>
         </p>
