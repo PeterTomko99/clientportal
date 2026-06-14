@@ -43,7 +43,7 @@ export default function Register() {
           </div>
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" value={form.email} onChange={handle} required autoComplete="email" />
+            <input id="email" name="email" type="email" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}" value={form.email} onChange={handle} required autoComplete="email" />
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
