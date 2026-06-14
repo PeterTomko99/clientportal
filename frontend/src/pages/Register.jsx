@@ -5,7 +5,7 @@ import api from '../api';
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'CLIENT' });
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
   function handle(e) {
@@ -48,13 +48,6 @@ export default function Register() {
           <div className="form-group">
             <label>Password</label>
             <input name="password" type="password" value={form.password} onChange={handle} required minLength={8} autoComplete="new-password" />
-          </div>
-          <div className="form-group">
-            <label>Role</label>
-            <select name="role" value={form.role} onChange={handle}>
-              <option value="CLIENT">Client</option>
-              <option value="ADMIN">Admin</option>
-            </select>
           </div>
           <button className="btn-primary" type="submit" disabled={loading}>
             {loading ? 'Creating...' : 'Create account'}
