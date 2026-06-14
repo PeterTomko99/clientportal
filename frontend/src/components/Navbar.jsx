@@ -11,7 +11,7 @@ export default function Navbar() {
 
   return (
     <nav>
-      <span className="brand">Client Portal</span>
+      <Link to="/" className="brand">Client Portal</Link>
       <div className="nav-links">
         <Link to="/">Dashboard</Link>
         <Link to="/projects">Projects</Link>
